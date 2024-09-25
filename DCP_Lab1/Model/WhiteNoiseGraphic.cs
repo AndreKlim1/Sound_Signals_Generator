@@ -37,7 +37,7 @@ namespace DCP_Lab1.Model
             return points;
         }
 
-        public double getValue(double x)
+        public double getValue(double x, bool mod = false)
         {
             return amplitude * (2 * random.NextDouble() - 1);
         }

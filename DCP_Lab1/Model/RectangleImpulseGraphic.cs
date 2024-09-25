@@ -13,22 +13,25 @@ namespace DCP_Lab1.Model
         private double maxValue;
         private double step;
         private double amplitude;
-        private double period;
+        private double oscillationFrequency;
         private int samplingFrequency;
+        private double startPhase;
         private double workCycle;
 
         public RectangleImpulseGraphic(double maxValue, 
             double step, 
             double amplitude,
-            double period,
+            double oscillationFrequency,
             int samplingFrequency,
+            double startPhase,
             double workCycle)
         {
             this.maxValue = maxValue;
             this.step = step;
             this.amplitude = amplitude;
-            this.period = period;
+            this.oscillationFrequency = oscillationFrequency;
             this.samplingFrequency = samplingFrequency;
+            this.startPhase = startPhase;
             this.workCycle = workCycle;
 
         }
@@ -41,8 +44,6 @@ namespace DCP_Lab1.Model
         {
             List<CoordinatePoint> points = new List<CoordinatePoint>();
 
-            var pi = Math.PI;
-
             for (double x = 0; x < maxValue; x += step)
             {
                 var point = new CoordinatePoint(x, getValue(x));
@@ -53,11 +54,21 @@ namespace DCP_Lab1.Model
             return points;
         }
 
-        public double getValue(double x)
+        public double getValue(double x, bool mod = false)
         {
-            var expresion = ((x / samplingFrequency) % period) / period;
+            var pi = Math.PI;
+            double expr;
+            if (mod)
+            {
+                expr = (x) % (2 * pi) / (2 * pi);
+            }
+            else
+            {
+                expr = (2 * pi * oscillationFrequency * (x / samplingFrequency) + startPhase) % (2 * pi) / (2 * pi);
+            }
+            
 
-            if (expresion < workCycle)
+            if (expr < workCycle)
             {
                 return amplitude;
             }

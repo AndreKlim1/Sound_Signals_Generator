@@ -12,6 +12,6 @@ namespace DCP_Lab1.Model
         string Name { get; }
         Color ColorValue { get; }
         List<CoordinatePoint> getPoints();
-        double getValue(double x);
+        double getValue(double x, bool mod = false);
     }
 }

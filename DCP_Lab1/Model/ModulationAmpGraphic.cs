@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace DCP_Lab1.Model
 {
-    public class ModulationGraphic: IGraphic
+    public class ModulationAmpGraphic: IGraphic
     {
         private double maxValue { get; set; }
         private double step;
         private List<IGraphic> graphics;
 
-        public ModulationGraphic(double maxValue, double step, List<IGraphic> graphics)
+        public ModulationAmpGraphic(double maxValue, double step, List<IGraphic> graphics)
         {
             this.maxValue = maxValue;
             this.step = step;
@@ -26,13 +26,13 @@ namespace DCP_Lab1.Model
                 string name = "";
                 foreach (var graphic in graphics)
                 {
-                    name += graphic.Name + " +\n ";
+                    name += graphic.Name + " %\n ";
                 }
                 return name;
             }
         }
 
-        public Color ColorValue => Color.RoyalBlue;
+        public Color ColorValue => Color.Purple;
 
         public List<CoordinatePoint> getPoints()
         {
@@ -48,15 +48,11 @@ namespace DCP_Lab1.Model
             return resultPoints;
         }
 
-        public double getValue(double x)
+        public double getValue(double x, bool mod = false)
         {
-            double mod = 1;
-            foreach (var graphic in graphics)
-            {
-                mod *= graphic.getValue(x);
-            }
+            var modY = graphics[0].getValue(x) + graphics[1].getValue(x)* graphics[0].getValue(x);
 
-            return mod;
+            return modY;
         }
     }
 }

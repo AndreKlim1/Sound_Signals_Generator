@@ -33,13 +33,12 @@ namespace DCP_Lab1.Model
             }
         }
 
-        public Color ColorValue => Color.Brown;
+        public Color ColorValue => Color.Teal;
 
         public List<CoordinatePoint> getPoints()
         {
             List<CoordinatePoint> resultPoints = new List<CoordinatePoint>();
 
-            //for (double x = 0; x < 8 * Math.PI; x += Math.PI / 20.0)
             for (double x = 0; x < maxValue; x += step)
             {
                 var point = new CoordinatePoint(x, getValue(x));
@@ -50,7 +49,7 @@ namespace DCP_Lab1.Model
             return resultPoints;
         }
 
-        public double getValue(double x) 
+        public double getValue(double x, bool mod = false) 
         {
             double sum = 0;
             foreach (var graphic in graphics) 

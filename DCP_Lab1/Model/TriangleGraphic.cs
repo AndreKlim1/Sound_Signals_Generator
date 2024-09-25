@@ -49,15 +49,21 @@ namespace DCP_Lab1.Model
             return points;
         }
 
-        public double getValue(double x)
+        public double getValue(double x, bool mod = false)
         {
             var pi = Math.PI;
-
             var firstMultiplier = 2 * amplitude / pi;
-            var sin = Math.Sin(2 * pi * oscillationFrequency * x / samplingFrequency + startPhase);
-            var arcsin = Math.Asin(sin);
+            double expr;
+            if (mod)
+            {
+                expr = Math.Abs(((x + 3 * pi / 2) % (2 * pi)) - pi) - pi / 2;
+            }
+            else
+            {
+                expr = Math.Abs(((2 * pi * oscillationFrequency * x / samplingFrequency + startPhase + 3 * pi / 2) % (2 * pi)) - pi) - pi / 2;
+            }
 
-            return firstMultiplier * arcsin;
+            return firstMultiplier * expr;
         }
 
 

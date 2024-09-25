@@ -23,7 +23,6 @@ namespace DCP_Lab1
         List<IGraphic> graphics = new List<IGraphic>();
         List<Signal> signals = new List<Signal>();
         float[] singleSignal;
-        //IGraphic currentGraphic = new SinGraphic(10, 1, 1, 1, 1, 0);
 
         public Form1()
         {
@@ -35,15 +34,11 @@ namespace DCP_Lab1
 
         private void setupView() 
         {
-            Size = new Size(1235, 615);
-            samplingFrequencyComboBox.SelectedIndex = 3;
-            firstAmplitudeSlider.Value = 1;
-            firstOscillationFrequencySlider.Value = 1;
-            firstStartPhaseSlider.Value = 0;
-            firstPeriodSlider.Value = 1;
+            Size = new Size(1233, 576);
+            samplingFrequencyComboBox.SelectedIndex = 6;
 
-            signals.Add(new Signal(firstSignal, 1, Int32.Parse(samplingFrequencyComboBox.SelectedItem.ToString()), 1, 0, 1, 0.12));
-            signals.Add(new Signal(secondSignal, 1, Int32.Parse(samplingFrequencyComboBox.SelectedItem.ToString()), 1, 0, 1, 0.12));
+            signals.Add(new Signal(firstSignal, 0.1, Int32.Parse(samplingFrequencyComboBox.SelectedItem.ToString()), 1, 0, 1, 0.12));
+            signals.Add(new Signal(secondSignal, 0.1, Int32.Parse(samplingFrequencyComboBox.SelectedItem.ToString()), 1, 0, 1, 0.12));
             firstSignal.SelectedIndex = 0;
             secondSignal.SelectedIndex = 1;
 
@@ -53,14 +48,8 @@ namespace DCP_Lab1
         private void setupChartView() 
         {
             chartView.Series.Clear();
-
-            // X - axis
-            //chartView.ChartAreas[0].AxisX.Minimum = 0;
-            //chartView.ChartAreas[0].AxisX.Maximum = 8 * Math.PI;
-
-            // Y - axis
-            chartView.ChartAreas[0].AxisY.Minimum = -5;
-            chartView.ChartAreas[0].AxisY.Maximum = 5;
+            chartView.ChartAreas[0].AxisY.Minimum = -1;
+            chartView.ChartAreas[0].AxisY.Maximum = 1;
 
         }
 
@@ -74,12 +63,12 @@ namespace DCP_Lab1
         {
             if (sender == firstAmplitudeSlider)
             {
-                signals[0].Amplitude = (double)firstAmplitudeSlider.Value/4;
+                signals[0].Amplitude = (double)firstAmplitudeSlider.Value/10;
                 A1.Text = "A " + signals[0].Amplitude.ToString();
             }
             else
             {
-                signals[1].Amplitude = (double)secondAmplitudeSlider.Value/4;
+                signals[1].Amplitude = (double)secondAmplitudeSlider.Value/10;
                 A2.Text = "A " + signals[1].Amplitude.ToString();
             }
             drawGraphics();
@@ -116,21 +105,6 @@ namespace DCP_Lab1
             drawGraphics();
         }
 
-        private void periodSlider_Scroll(object sender, EventArgs e)
-        {
-            if (sender == firstPeriodSlider)
-            {
-                signals[0].Period = firstPeriodSlider.Value;
-                T1.Text = "T " + signals[0].Period.ToString();
-            }
-            else
-            {
-                signals[1].Period = secondPeriodSlider.Value;
-                T2.Text = "T " + signals[1].Period.ToString();
-            }
-            drawGraphics();
-        }
-
         private void workCycleTextBox_TextChanged(object sender, EventArgs e)
         {
             
@@ -149,11 +123,6 @@ namespace DCP_Lab1
             catch { }
         }
 
-        private void enableSumModeCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            drawGraphics();
-        }
-
         private void drawGraphics() 
         {
             chartView.Series.Clear();
@@ -166,11 +135,17 @@ namespace DCP_Lab1
                 singleSignal = GraphicToSignal(sumGraphic.getPoints());
                 drawGraphic(sumGraphic);
             }
-            else if(modulationCheckBox.Checked)
+            else if(amModeCheckBox.Checked)
             {
-                var modGraphic = new ModulationGraphic(samplingFrequency, step, graphics);
-                singleSignal = GraphicToSignal(modGraphic.getPoints());
-                drawGraphic(modGraphic);
+                var modAmGraphic = new ModulationAmpGraphic(samplingFrequency, step, graphics);
+                singleSignal = GraphicToSignal(modAmGraphic.getPoints());
+                drawGraphic(modAmGraphic);
+            }
+            else if (frModeCheckBox.Checked)
+            {
+                var modFrGraphic = new ModulationFrGraphic(samplingFrequency, step, graphics, signals[0].StartPhase, samplingFrequency, signals[0].OscillationFrequence);
+                singleSignal = GraphicToSignal(modFrGraphic.getPoints());
+                drawGraphic(modFrGraphic);
             }
             else
             {
@@ -198,8 +173,9 @@ namespace DCP_Lab1
                 {
                     var rectGraphic = new RectangleImpulseGraphic(samplingFrequency, step,
                         signal.Amplitude,
-                        signal.Period,
+                        signal.OscillationFrequence,
                         samplingFrequency,
+                        signal.StartPhase,
                         signal.WorkCycle);
                     graphics.Add(rectGraphic);
                 }
@@ -257,8 +233,7 @@ namespace DCP_Lab1
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
-            if(!sumCheckBox.Checked && !modulationCheckBox.Checked)
+            if(!sumCheckBox.Checked && !amModeCheckBox.Checked && !frModeCheckBox.Checked)
             {
                 for (int j = 0; j < graphics.Count; j++)
                 {
@@ -286,15 +261,22 @@ namespace DCP_Lab1
         static void SaveAudio(float[] signal, int numb=0)
         {
             int sampleRate = 44100;
+            int timeLength = 4;
             string fileName = $"signal{numb}.wav";
             if (File.Exists(fileName))
             {
                 File.Delete(fileName);
             }
 
+            float[] resultSignal = new float[sampleRate * timeLength];
+            for (int i = 0; i < resultSignal.Length; i++)
+            {
+                resultSignal[i] = signal[i % signal.Length];
+            }
+
             using (var waveFileWriter = new WaveFileWriter(fileName, new WaveFormat(sampleRate, 1)))
             {
-                waveFileWriter.WriteSamples(signal, 0, signal.Length);
+                waveFileWriter.WriteSamples(resultSignal, 0, resultSignal.Length);
             }
         }
 
@@ -319,11 +301,6 @@ namespace DCP_Lab1
             return signal;
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            graphics.Clear();
-        }
-
         private void Signal_SelectedIndexChanged(object sender, EventArgs e)
         {
             drawGraphics();
@@ -333,18 +310,35 @@ namespace DCP_Lab1
         {
             if (sumCheckBox.Checked == true)
             {
-                modulationCheckBox.Checked = false;
+                amModeCheckBox.Checked = false;
+                frModeCheckBox.Checked = false;
             }
             drawGraphics();
         }
 
         private void modulationCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (modulationCheckBox.Checked == true)
+            if (amModeCheckBox.Checked == true)
             {
                 sumCheckBox.Checked = false;
+                frModeCheckBox.Checked = false;
             }
             drawGraphics();
+        }
+
+        private void frModeCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (frModeCheckBox.Checked == true)
+            {
+                sumCheckBox.Checked = false;
+                amModeCheckBox.Checked = false;
+            }
+            drawGraphics();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

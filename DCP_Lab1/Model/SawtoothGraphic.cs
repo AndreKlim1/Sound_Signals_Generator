@@ -41,8 +41,6 @@ namespace DCP_Lab1.Model
         {
             List<CoordinatePoint> points = new List<CoordinatePoint>();
 
-            var pi = Math.PI;
-
             for (double x = 0; x < maxValue; x += step)
             {
                 var point = new CoordinatePoint(x, getValue(x));
@@ -53,15 +51,22 @@ namespace DCP_Lab1.Model
             return points;
         }
 
-        public double getValue(double x)
+        public double getValue(double x, bool mod = false)
         {
             var pi = Math.PI;
+            var firstMultiplier = amplitude / pi;
+            double expr;
+            if( mod )
+            {
+                expr = (x + pi) % (2 * pi) - pi;
+            }
+            else
+            {
+                expr = (2 * pi * oscillationFrequency * x / samplingFrequency + startPhase + pi) % (2 * pi) - pi;
+            }
+            
 
-            var firstMultiplier = - 2 * amplitude / pi;
-            var cot = 1 / Math.Tan(pi * oscillationFrequency * x / samplingFrequency + startPhase);
-            var arctan = Math.Atan(cot);
-
-            return firstMultiplier * arctan;
+            return firstMultiplier * expr;
         }
     }
 }

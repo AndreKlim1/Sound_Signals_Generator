@@ -85,7 +85,8 @@
     </Compile>
     <Compile Include="Model\CoordinatePoint.cs" />
     <Compile Include="Model\IGraphic.cs" />
-    <Compile Include="Model\ModulationGraphic.cs" />
+    <Compile Include="Model\ModulationAmpGraphic.cs" />
+    <Compile Include="Model\ModulationFrGraphic.cs" />
     <Compile Include="Model\RectangleImpulseGraphic.cs" />
     <Compile Include="Model\SawtoothGraphic.cs" />
     <Compile Include="Model\Signal.cs" />

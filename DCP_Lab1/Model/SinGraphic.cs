@@ -39,8 +39,7 @@ namespace DCP_Lab1.Model
         public List<CoordinatePoint> getPoints()
         {
             List<CoordinatePoint> points = new List<CoordinatePoint>();
-
-            //for (double x = 0; x < 8 * Math.PI; x += Math.PI / 20.0) 
+ 
             for (double x = 0; x < maxValue; x += step)
             {
                 var point = new CoordinatePoint(x, getValue(x));
@@ -51,11 +50,19 @@ namespace DCP_Lab1.Model
             return points;
         }
 
-        public double getValue(double x) 
+        public double getValue(double x, bool mod = false) 
         {
             var pi = Math.PI;
-           
-            return amplitude * Math.Sin(2 * pi * oscillationFrequency * x / samplingFrequency + startPhase);
+            double expr;
+            if (mod)
+            {
+                expr = Math.Sin(x);
+            }
+            else
+            {
+                expr = Math.Sin(2 * pi * oscillationFrequency * x / samplingFrequency + startPhase);
+            }
+            return amplitude * expr;
         } 
     }
 }
